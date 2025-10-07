@@ -1,8 +1,39 @@
+/* ================================================ */
+/* 1. DEFINICIÓN DE VARIABLES GLOBALES             */
+/* ================================================ */
+:root {
+    /* Paleta de Colores */
+    --color-primario: #007bff;
+    --color-primario-oscuro: #0056b3;
+    --color-fondo: #f0f8ff;
+    --color-superficie: #ffffff;
+    --color-texto-principal: #333;
+    --color-texto-secundario: #666;
+    --color-exito: #28a745;
+    --color-exito-oscuro: #218838;
+    --color-error: #dc3545;
+
+    /* Tipografía - Familia de Fuente */
+    --fuente-principal: 'Poppins', sans-serif;
+
+    /* Tipografía - Escala de Tamaños */
+    --fs-normal: 1rem;         /* Tamaño base para párrafos (equivale a 16px) */
+    --fs-mediano: 1.125rem;    /* Un poco más grande para inputs y botones */
+    --fs-grande: 1.25rem;      /* Para etiquetas y subtítulos */
+    --fs-xl: 1.5rem;           /* Para los botones de grado */
+    --fs-titulo: 2.25rem;      /* Para el título principal h1 */
+}
+
+/* ================================================ */
+/* 2. ESTILOS GENERALES USANDO VARIABLES           */
+/* ================================================ */
+
 /* Estilos generales del cuerpo */
 body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #f0f8ff; /* Azul cielo muy claro */
-    color: #333;
+    font-family: var(--fuente-principal);
+    background-color: var(--color-fondo);
+    color: var(--color-texto-principal);
+    font-size: var(--fs-normal); /* Se establece el tamaño base aquí */
     margin: 0;
     padding: 20px;
     display: flex;
@@ -16,7 +47,7 @@ body {
 .container {
     max-width: 900px;
     width: 100%;
-    background-color: #ffffff;
+    background-color: var(--color-superficie);
     padding: 40px;
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -24,13 +55,14 @@ body {
 }
 
 h1 {
-    color: #0056b3; /* Azul oscuro */
+    color: var(--color-primario-oscuro);
+    font-size: var(--fs-titulo);
     margin-bottom: 10px;
 }
 
 p {
-    color: #666;
-    font-size: 1.1em;
+    color: var(--color-texto-secundario);
+    font-size: var(--fs-mediano);
     margin-bottom: 30px;
 }
 
@@ -43,12 +75,12 @@ p {
 
 /* Estilo de cada botón de grado */
 .grid-item {
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    color: white;
+    background: linear-gradient(135deg, var(--color-primario), var(--color-primario-oscuro));
+    color: var(--color-superficie);
     padding: 30px 20px;
     border-radius: 15px;
     text-decoration: none;
-    font-size: 1.5em;
+    font-size: var(--fs-xl);
     font-weight: bold;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     display: flex;
@@ -73,7 +105,7 @@ p {
 
 #login-container label {
     display: block;
-    font-size: 1.2em;
+    font-size: var(--fs-grande);
     margin-bottom: 10px;
 }
 
@@ -82,27 +114,27 @@ p {
     padding: 12px;
     border: 1px solid #ccc;
     border-radius: 8px;
-    font-size: 1.1em;
+    font-size: var(--fs-mediano);
     margin-bottom: 20px;
 }
 
 #login-container button {
-    background-color: #28a745; /* Verde */
-    color: white;
+    background-color: var(--color-exito);
+    color: var(--color-superficie);
     border: none;
     padding: 12px 25px;
     border-radius: 8px;
-    font-size: 1.1em;
+    font-size: var(--fs-mediano);
     cursor: pointer;
     transition: background-color 0.3s;
 }
 
 #login-container button:hover {
-    background-color: #218838;
+    background-color: var(--color-exito-oscuro);
 }
 
 #error-message {
-    color: #dc3545; /* Rojo */
+    color: var(--color-error);
     font-weight: bold;
     min-height: 20px;
 }
