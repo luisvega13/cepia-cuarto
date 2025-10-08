@@ -58,6 +58,12 @@ p {
     font-size: var(--fs-mediano);
     margin-bottom: 30px;
 }
+a{
+    text-decoration: none;
+    font-size: var(--fs-normal);
+    color: var(--color-primario);
+    transition: color 0.3s;
+}
 
 /* --- NUEVOS ESTILOS PARA LA NAVBAR --- */
 .navbar {
@@ -67,7 +73,8 @@ p {
     padding: 20px 40px;
     margin: 0 auto 20px;
     border-radius: 20px;
-    display: flex;
+    display: none;
+    /* display: flex; */
     justify-content: center;
     align-items: center;
     gap: 20px; /* Espacio entre los botones */
@@ -119,6 +126,7 @@ p {
 }
 
 #login-container {
+    /* display: none; */
     max-width: 400px;
     margin: 40px auto;
     padding: 30px;
