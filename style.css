@@ -17,36 +17,29 @@
     --fuente-principal: 'Poppins', sans-serif;
 
     /* Tipografía - Escala de Tamaños */
-    --fs-normal: 1rem;         /* Tamaño base para párrafos (equivale a 16px) */
-    --fs-mediano: 1.125rem;    /* Un poco más grande para inputs y botones */
-    --fs-grande: 1.25rem;      /* Para etiquetas y subtítulos */
-    --fs-xl: 1.5rem;           /* Para los botones de grado */
-    --fs-titulo: 2.25rem;      /* Para el título principal h1 */
+    --fs-normal: 1rem;
+    --fs-mediano: 1.125rem;
+    --fs-grande: 1.25rem;
+    --fs-xl: 1.25rem;
+    --fs-titulo: 2.25rem;
 }
 
 /* ================================================ */
 /* 2. ESTILOS GENERALES USANDO VARIABLES           */
 /* ================================================ */
 
-/* Estilos generales del cuerpo */
 body {
     font-family: var(--fuente-principal);
     background-color: var(--color-fondo);
     color: var(--color-texto-principal);
-    font-size: var(--fs-normal); /* Se establece el tamaño base aquí */
+    font-size: var(--fs-normal);
     margin: 0;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    box-sizing: border-box;
+    padding-top: 30px; /* Espacio para la navbar fija */
 }
 
-/* Contenedor principal */
 .container {
-    max-width: 900px;
-    width: 100%;
+    margin: auto;
+    width: 90%;
     background-color: var(--color-superficie);
     padding: 40px;
     border-radius: 20px;
@@ -66,14 +59,46 @@ p {
     margin-bottom: 30px;
 }
 
-/* Rejilla para los botones de grado */
+/* --- NUEVOS ESTILOS PARA LA NAVBAR --- */
+.navbar {
+    width: 90%;
+    background-color: var(--color-superficie);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 20px 40px;
+    margin: 0 auto 20px;
+    border-radius: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px; /* Espacio entre los botones */
+}
+
+.nav-button {
+    background-color: transparent;
+    border: 2px solid var(--color-primario);
+    color: var(--color-primario);
+    padding: 10px 20px;
+    border-radius: 50px; /* Bordes redondeados */
+    cursor: pointer;
+    font-family: var(--fuente-principal);
+    font-size: var(--fs-normal);
+    font-weight: bold;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.nav-button:hover, .nav-button.active {
+    background-color: var(--color-primario);
+    color: var(--color-superficie);
+}
+/* --- FIN DE NUEVOS ESTILOS --- */
+
+
 .grid-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
 }
 
-/* Estilo de cada botón de grado */
 .grid-item {
     background: linear-gradient(135deg, var(--color-primario), var(--color-primario-oscuro));
     color: var(--color-superficie);
@@ -93,7 +118,6 @@ p {
     box-shadow: 0 15px 25px rgba(0, 86, 179, 0.3);
 }
 
-/* Estilos para el contenedor del código de acceso */
 #login-container {
     max-width: 400px;
     margin: 40px auto;
@@ -139,9 +163,25 @@ p {
     min-height: 20px;
 }
 
-/* Contenido oculto de la página del grado */
+/* Contenido de la página del grado */
 .content {
-    display: none; /* Inicia oculto por defecto */
+    display: none;
     text-align: left;
     margin-top: 30px;
 }
+
+/* --- NUEVOS ESTILOS PARA LAS PESTAÑAS --- */
+.tab-content {
+    display: none; /* Todas las pestañas inician ocultas */
+    animation: fadeIn 0.5s; /* Animación suave */
+}
+
+.tab-content.active {
+    display: block; /* La pestaña activa se muestra */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+/* --- FIN DE NUEVOS ESTILOS --- */
