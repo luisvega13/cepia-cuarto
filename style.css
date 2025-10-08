@@ -73,7 +73,8 @@ a{
     padding: 20px 40px;
     margin: 0 auto 20px;
     border-radius: 20px;
-    display: flex;
+    display: none;
+    /* display: flex; */
     justify-content: center;
     align-items: center;
     gap: 20px; /* Espacio entre los botones */
@@ -125,6 +126,7 @@ a{
 }
 
 #login-container {
+    /* display: none; */
     max-width: 400px;
     margin: 40px auto;
     padding: 30px;

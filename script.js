@@ -7,9 +7,9 @@
 function checkCode() {
     // La variable 'correctCode' la leerá desde el archivo HTML que llame a este script.
     const enteredCode = document.getElementById('access-code').value;
-    const loginContainer = document.getElementById('login-container');
-    const contentContainer = document.getElementById('content');
-    const navbar = document.getElementById('navbar');
+    const loginContainer = document.getElementById('login-container'); //Silenciado display none
+    const contentContainer = document.getElementById('content'); //Silenciado display block
+    const navbar = document.getElementById('navbar'); //Silenciado display flex
     const errorMessage = document.getElementById('error-message');
 
     if (enteredCode === correctCode) {
