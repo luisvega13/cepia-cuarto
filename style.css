@@ -58,6 +58,12 @@ p {
     font-size: var(--fs-mediano);
     margin-bottom: 30px;
 }
+a{
+    text-decoration: none;
+    font-size: var(--fs-normal);
+    color: var(--color-primario);
+    transition: color 0.3s;
+}
 
 /* --- NUEVOS ESTILOS PARA LA NAVBAR --- */
 .navbar {
