@@ -193,3 +193,9 @@ a{
     to { opacity: 1; }
 }
 /* --- FIN DE NUEVOS ESTILOS --- */
+
+.image-description-container {
+    padding: 10px;
+    background-color: #7CA28D;
+    border-radius: 15px;
+}

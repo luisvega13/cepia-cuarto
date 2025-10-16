@@ -10,23 +10,23 @@
 /* --- NUEVOS ESTILOS PARA IMÁGENES Y DESCRIPCIONES DE CLASE --- */
 .image-description-container {
     display: flex;
-    flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
+    flex-wrap: wrap; 
     justify-content: center;
-    gap: 30px; /* Espacio entre los contenedores de imagen/descripción */
+    gap: 15px; 
     margin-top: 40px;
 }
 
 .image-card {
-    width: 100%; /* Ancho fijo para cada tarjeta */
+    width: 100%;
     background-color: var(--color-superficie);
     border: 1px solid #e0e0e0;
     border-radius: 15px;
-    overflow: hidden; /* Asegura que la imagen no se salga de los bordes redondeados */
+    overflow: hidden;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
     cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     text-align: center;
-    padding: 20px 0; /* Espacio debajo del título */
+    padding: 20px 0;
 }
 
 .image-card:hover {
@@ -52,7 +52,7 @@
 .description-content {
     padding: 0 20px;
     text-align: left;
-    display: none; /* Inicia oculto */
+    display: none; 
     animation: fadeIn 0.4s ease-out;
 }
 
@@ -84,11 +84,11 @@
     background-color: var(--color-primario-oscuro);
 }
 
-/* Media Queries para responsividad (opcional pero recomendado) */
+
 @media (max-width: 768px) {
     .image-card {
-        width: 100%; /* Las tarjetas ocupan todo el ancho en móviles */
-        max-width: 350px; /* Un ancho máximo para evitar que se estiren demasiado */
+        width: 100%;
+        max-width: 350px; 
     }
 }
 
