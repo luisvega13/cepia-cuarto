@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso a Grupos</title>
+</head>
+<body>
+    
+    <h1>Selecciona un Grupo</h1>
+    <ul>
+        <li><a href="3_tercero/3_participaciones/profesor.html" class="protected-link">Tercero</a></li>
+        <li><a href="4_cuarto/4_participaciones/profesor.html" class="protected-link">Cuarto</a></li>
+        <li><a href="5_quinto/5_participaciones/profesor.html" class="protected-link">Quinto</a></li>
+        <li><a href="6_sexto/6_participaciones/profesor.html" class="protected-link">Sexto</a></li>
+    </ul>
+
+    <script>
+        // --- PASO 1: Define tu contraseña aquí ---
+        const CORRECT_PASSWORD = 'admin'; // ¡Cambia 'admin' por tu contraseña real!
+
+        // Selecciona todos los enlaces que deben ser protegidos
+        const protectedLinks = document.querySelectorAll('.protected-link');
+
+        // Añade un detector de clics a cada enlace
+        protectedLinks.forEach(link => {
+            link.addEventListener('click', function(event) {
+                // Previene que el enlace funcione de inmediato
+                event.preventDefault(); 
+                
+                // Pide la contraseña al usuario
+                const userPassword = prompt('Para continuar, por favor ingresa la contraseña:');
+                
+
+                // Comprueba si la contraseña es correcta
+                if (userPassword === CORRECT_PASSWORD) {
+                    // Si es correcta, redirige a la página del enlace
+                    window.location.href = this.href;
+                } else {
+                    // Si es incorrecta o se cancela, muestra una alerta
+                    alert('Contraseña incorrecta. Acceso denegado.');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
