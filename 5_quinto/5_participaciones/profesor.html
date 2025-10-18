@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel del Profesor</title>
+    <link rel="stylesheet" href="../../resources/participaciones.css">
+
+    <style>
+        /* Oculta los contenedores de contenido */
+        #app-content { display: none; }
+        #access-denied { display: none; }
+    </style>
+</head>
+<body>
+
+    <script>
+        // --- DEFINE TU CONTRASEÑA AQUÍ ---
+        const CORRECT_PASSWORD = 'admin'; // ¡Cambia 'admin' por tu código de acceso!
+
+        let isAuthenticated = sessionStorage.getItem('isAuthenticated') === 'true';
+
+        // Si no está autenticado en esta sesión, pedir contraseña
+        if (!isAuthenticated) {
+            const userPassword = prompt('Por favor, ingresa el código de acceso:');
+            
+            if (userPassword === CORRECT_PASSWORD) {
+                isAuthenticated = true;
+                sessionStorage.setItem('isAuthenticated', 'true'); // Guarda para esta sesión
+            } else {
+                alert('Código incorrecto. Acceso denegado.');
+            }
+        }
+
+        // Mostrar el contenido correcto basado en la autenticación
+        if (isAuthenticated) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('app-content').style.display = 'block';
+            });
+        } else {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('access-denied').style.display = 'block';
+            });
+        }
+    </script>
+
+    <div id="access-denied" style="text-align: center; margin-top: 50px;">
+        <h1>Acceso Denegado</h1>
+        <p>El código de acceso es incorrecto.</p>
+    </div>
+
+    <div id="app-content">
+        <div class="container">
+            <header>
+                <h1>Panel de Control del Profesor Quinto</h1>
+                <p class="description">Gestión de participaciones estudiantiles</p>
+            </header>
+
+            <div class="card">
+                <h2 class="card-title">Agregar Estudiante</h2>
+                <form id="estudianteForm">
+                    <div class="form-row">
+                        <div class="form-group"><label for="numeroLista">Número de Lista</label><input type="number" id="numeroLista" min="1" required></div>
+                        <div class="form-group"><label for="apellidoPaterno">Apellido Paterno</label><input type="text" id="apellidoPaterno" required></div>
+                        <div class="form-group"><label for="apellidoMaterno">Apellido Materno</label><input type="text" id="apellidoMaterno" required></div>
+                        <div class="form-group"><label for="nombre">Nombre(s)</label><input type="text" id="nombre" required></div>
+                    </div>
+                    <button type="submit" class="btn btn-success">Agregar Estudiante</button>
+                </form>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title">Registrar Participación por Número de Lista</h2>
+                <div id="participacionControl">
+                    <div class="form-group"><label for="numeroListaParticipacion">Número de Lista</label><input type="number" id="numeroListaParticipacion" min="1" required></div>
+                    <div class="button-group">
+                        <button class="btn btn-success" onclick="modificarParticipacion(1)">Agregar (+1)</button>
+                        <button class="btn btn-warning" onclick="modificarParticipacion(-1)">Restar (-1)</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title">Participaciones Registradas</h2>
+                <div class="table-container">
+                    <table id="tablaEstudiantes">
+                        <thead><tr><th>N° Lista</th><th>Nombre Completo</th><th>Participaciones</th><th>Acciones</th></tr></thead>
+                        <tbody id="cuerpoTabla"></tbody>
+                    </table>
+                </div>
+                <div id="mensajeVacio" class="empty-message">No hay estudiantes registrados.</div>
+            </div>
+        </div>
+
+        <script>
+            const pathParts = window.location.pathname.split('/').filter(part => part !== '');
+            const groupName = pathParts[pathParts.length - 2] || 'default_group'; 
+            const storageKey = `participaciones_${groupName}`; 
+
+            let estudiantes = JSON.parse(localStorage.getItem(storageKey)) || [];
+            
+            const estudianteForm = document.getElementById('estudianteForm');
+            const cuerpoTabla = document.getElementById('cuerpoTabla');
+            const mensajeVacio = document.getElementById('mensajeVacio');
+
+            document.addEventListener('DOMContentLoaded', actualizarTabla);
+
+            estudianteForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const numeroLista = parseInt(document.getElementById('numeroLista').value);
+                if (estudiantes.some(est => est.numeroLista === numeroLista)) {
+                    alert('Ya existe un estudiante con ese número de lista.');
+                    return;
+                }
+                estudiantes.push({
+                    numeroLista,
+                    apellidoPaterno: document.getElementById('apellidoPaterno').value.trim(),
+                    apellidoMaterno: document.getElementById('apellidoMaterno').value.trim(),
+                    nombre: document.getElementById('nombre').value.trim(),
+                    participaciones: 0
+                });
+                guardarYActualizar();
+                estudianteForm.reset();
+            });
+            
+            function modificarParticipacion(cantidad) {
+                const inputEl = document.getElementById('numeroListaParticipacion');
+                if (!inputEl.value) { alert('Por favor, introduce un número de lista.'); return; }
+                const numeroLista = parseInt(inputEl.value);
+                const estudiante = estudiantes.find(est => est.numeroLista === numeroLista);
+                if (estudiante) {
+                    estudiante.participaciones = Math.max(0, estudiante.participaciones + cantidad);
+                    guardarYActualizar();
+                    inputEl.value = '';
+                    const nombreCompleto = `${estudiante.nombre} ${estudiante.apellidoPaterno}`;
+                    const accion = cantidad > 0 ? 'agregada para' : 'restada a';
+                    alert(`Participación ${accion} ${nombreCompleto}. Total: ${estudiante.participaciones}`);
+                } else {
+                    alert('No se encontró un estudiante con ese número de lista.');
+                }
+            }
+
+            function agregarParticipacionDirecto(numeroLista) {
+                const est = estudiantes.find(e => e.numeroLista === numeroLista);
+                if (est) { est.participaciones++; guardarYActualizar(); }
+            }
+            
+            function restarParticipacionDirecto(numeroLista) {
+                const est = estudiantes.find(e => e.numeroLista === numeroLista);
+                if (est) { est.participaciones = Math.max(0, est.participaciones - 1); guardarYActualizar(); }
+            }
+
+            function eliminarEstudiante(numeroLista) {
+                if (confirm('¿Estás seguro de que deseas eliminar a este estudiante?')) {
+                    estudiantes = estudiantes.filter(est => est.numeroLista !== numeroLista);
+                    guardarYActualizar();
+                }
+            }
+
+            function guardarYActualizar() {
+                localStorage.setItem(storageKey, JSON.stringify(estudiantes));
+                actualizarTabla();
+            }
+            
+            function actualizarTabla() {
+                // Se comprueba si cuerpoTabla existe antes de usarlo
+                if (cuerpoTabla) { 
+                    cuerpoTabla.innerHTML = '';
+                    mensajeVacio.style.display = estudiantes.length === 0 ? 'block' : 'none';
+                    
+                    const estudiantesOrdenados = [...estudiantes].sort((a, b) => a.numeroLista - b.numeroLista);
+                    
+                    estudiantesOrdenados.forEach(est => {
+                        const nombreCompleto = `${est.apellidoPaterno} ${est.apellidoMaterno} ${est.nombre}`;
+                        cuerpoTabla.innerHTML += `
+                            <tr>
+                                <td>${est.numeroLista}</td>
+                                <td>${nombreCompleto}</td>
+                                <td><span class="participacion-count">${est.participaciones}</span></td>
+                                <td class="actions">
+                                    <button class="btn btn-small btn-success" onclick="agregarParticipacionDirecto(${est.numeroLista})">+1</button>
+                                    <button class="btn btn-small btn-warning" onclick="restarParticipacionDirecto(${est.numeroLista})">-1</button>
+                                    <button class="btn btn-small btn-danger" onclick="eliminarEstudiante(${est.numeroLista})">Eliminar</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+            }
+        </script>
+    </div> 
+</body>
+</html>
