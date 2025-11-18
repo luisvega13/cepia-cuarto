@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vista de Alumnos</title>
     <link rel="stylesheet" href="../../resources/participaciones.css">
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
 </head>
 <body>
     <div class="container">
@@ -17,9 +20,9 @@
             <h2 class="card-title">Tabla de Participaciones (quinto)</h2>
 
             <div id="liderCard" class="stat-card" style="margin-bottom: 30px; background-color: #e8f6ff; display: none;">
-                 <div class="stat-label" style="font-size: 1.2rem;">🏆 Alumno Destacado 🏆</div>
-                 <div class="stat-number" id="nombreLider" style="font-size: 2rem; margin-top: 10px;">-</div>
-                 <div id="participacionesLider" style="font-weight: bold; color: var(--dark-color);">- participaciones</div>
+                <div class="stat-label" style="font-size: 1.2rem;">🏆 Alumno Destacado 🏆</div>
+                <div class="stat-number" id="nombreLider" style="font-size: 2rem; margin-top: 10px;">-</div>
+                <div id="participacionesLider" style="font-weight: bold; color: var(--dark-color);">- participaciones</div>
             </div>
             
             <p>La tabla está ordenada por número de lista.</p>
@@ -36,24 +39,41 @@
                 <div class="stat-card"><div class="stat-number" id="maximoParticipaciones">0</div><div class="stat-label">Máximo de Participaciones</div></div>
             </div>
         </div>
-        <a href="../quinto.html" class="btn-back">R E G R E S A R</a>
+        <a href="../quinto.html" class="btn-back">R E G R E S A R</a> 
     </div>
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        actualizarVistaAlumnos();
-        setInterval(actualizarVistaAlumnos, 2000);
+        // **TU CONFIGURACIÓN DE FIREBASE COPIADA DE LA CONSOLA**
+        const firebaseConfig = {
+            apiKey: "AIzaSyDCPRHjRZT8NrpedBE33u1KWQIZQjPuwa0",
+            authDomain: "cepia-primaria.firebaseapp.com",
+            projectId: "cepia-primaria",
+            storageBucket: "cepia-primaria.appspot.com",
+            messagingSenderId: "101283432429",
+            appId: "1:101283432429:web:7af3e8a79630e853fb49e4"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Determinar la Colección (Ej. '5_participaciones' si la ruta es correcta)
+        const pathParts = window.location.pathname.split('/').filter(part => part !== '');
+        const groupName = pathParts[pathParts.length - 2] || 'default_group'; 
+        const classCollection = db.collection(groupName);
+
+        // Escucha cambios en tiempo real
+        classCollection.orderBy('numeroLista').onSnapshot(snapshot => {
+            const estudiantes = snapshot.docs.map(doc => ({
+                ...doc.data()
+            }));
+            actualizarVistaAlumnos(estudiantes);
+        }, error => {
+            console.error("Error al leer Firestore:", error);
+        });
     });
 
-    function actualizarVistaAlumnos() {
-        // --- NUEVO: Identificar el grupo desde la URL ---
-        const pathParts = window.location.pathname.split('/').filter(part => part !== '');
-        const groupName = pathParts[pathParts.length - 2] || 'default_group'; // Obtiene el nombre de la carpeta
-        const storageKey = `participaciones_${groupName}`; // Crea la misma clave única
-
-        // --- MODIFICADO: Usa la clave única para leer los datos ---
-        const estudiantes = JSON.parse(localStorage.getItem(storageKey)) || [];
-        
+    // Función que recibe los estudiantes del snapshot de Firestore
+    function actualizarVistaAlumnos(estudiantes) {
         const cuerpoTablaAlumnos = document.getElementById('cuerpoTablaAlumnos');
         const mensajeVacioAlumnos = document.getElementById('mensajeVacioAlumnos');
         const liderCard = document.getElementById('liderCard');
@@ -61,8 +81,8 @@
         cuerpoTablaAlumnos.innerHTML = '';
         mensajeVacioAlumnos.style.display = estudiantes.length === 0 ? 'block' : 'none';
 
-        const estudiantesOrdenados = [...estudiantes].sort((a, b) => a.numeroLista - b.numeroLista);
-        estudiantesOrdenados.forEach(est => {
+        // Los estudiantes ya están ordenados por numeroLista gracias a la consulta de Firestore
+        estudiantes.forEach(est => {
             const nombreCompleto = `${est.apellidoPaterno} ${est.apellidoMaterno} ${est.nombre}`;
             cuerpoTablaAlumnos.innerHTML += `
                 <tr>
@@ -73,6 +93,7 @@
             `;
         });
         
+        // --- Cálculo de Estadísticas ---
         const totalEstudiantes = estudiantes.length;
         const totalParticipaciones = estudiantes.reduce((total, est) => total + est.participaciones, 0);
         const maxParticipaciones = totalEstudiantes > 0 ? Math.max(...estudiantes.map(est => est.participaciones)) : 0;
@@ -92,6 +113,6 @@
         document.getElementById('totalParticipaciones').textContent = totalParticipaciones;
         document.getElementById('maximoParticipaciones').textContent = maxParticipaciones;
     }
-</script>
+    </script>
 </body>
 </html>

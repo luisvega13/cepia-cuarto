@@ -11,6 +11,36 @@
         #app-content { display: none; }
         #access-denied { display: none; }
     </style>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    <script>
+        // **TU CONFIGURACIÓN DE FIREBASE COPIADA DE LA CONSOLA**
+        const firebaseConfig = {
+            apiKey: "AIzaSyDCPRHjRZT8NrpedBE33u1KWQIZQjPuwa0",
+            authDomain: "cepia-primaria.firebaseapp.com",
+            projectId: "cepia-primaria",
+            storageBucket: "cepia-primaria.appspot.com",
+            messagingSenderId: "101283432429",
+            appId: "1:101283432429:web:7af3e8a79630e853fb49e4"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Determina dinámicamente el nombre del grupo (Colección en Firestore)
+        const pathParts = window.location.pathname.split('/').filter(part => part !== '');
+        const groupName = pathParts[pathParts.length - 2] || 'default_group'; 
+        const classCollection = db.collection(groupName);
+
+        // Variables y funciones necesarias
+        let estudiantes = [];
+        window.modificarParticipacion = modificarParticipacion;
+        window.agregarParticipacionDirecto = agregarParticipacionDirecto;
+        window.restarParticipacionDirecto = restarParticipacionDirecto;
+        window.eliminarEstudiante = eliminarEstudiante;
+    </script>
 </head>
 <body>
 
@@ -93,99 +123,146 @@
         </div>
 
         <script>
-            const pathParts = window.location.pathname.split('/').filter(part => part !== '');
-            const groupName = pathParts[pathParts.length - 2] || 'default_group'; 
-            const storageKey = `participaciones_${groupName}`; 
-
-            let estudiantes = JSON.parse(localStorage.getItem(storageKey)) || [];
-            
+            // Referencias a los elementos del DOM
             const estudianteForm = document.getElementById('estudianteForm');
             const cuerpoTabla = document.getElementById('cuerpoTabla');
             const mensajeVacio = document.getElementById('mensajeVacio');
 
-            document.addEventListener('DOMContentLoaded', actualizarTabla);
-
-            estudianteForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const numeroLista = parseInt(document.getElementById('numeroLista').value);
-                if (estudiantes.some(est => est.numeroLista === numeroLista)) {
-                    alert('Ya existe un estudiante con ese número de lista.');
-                    return;
-                }
-                estudiantes.push({
-                    numeroLista,
-                    apellidoPaterno: document.getElementById('apellidoPaterno').value.trim(),
-                    apellidoMaterno: document.getElementById('apellidoMaterno').value.trim(),
-                    nombre: document.getElementById('nombre').value.trim(),
-                    participaciones: 0
+            document.addEventListener('DOMContentLoaded', () => {
+                // Escucha cambios en tiempo real en la colección
+                classCollection.orderBy('numeroLista').onSnapshot(snapshot => {
+                    estudiantes = snapshot.docs.map(doc => ({
+                        id: doc.id, 
+                        ...doc.data()
+                    }));
+                    actualizarTabla(); // Redibuja la tabla con los datos actualizados
+                }, error => {
+                    console.error("Error al leer Firestore:", error);
                 });
-                guardarYActualizar();
-                estudianteForm.reset();
+
+                // Manejo del formulario para agregar estudiantes
+                estudianteForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const numeroLista = parseInt(document.getElementById('numeroLista').value);
+                    const numeroListaStr = String(numeroLista);
+                    
+                    const docRef = classCollection.doc(numeroListaStr);
+                    const doc = await docRef.get();
+
+                    if (doc.exists) {
+                        alert('Ya existe un estudiante con ese número de lista.');
+                        return;
+                    }
+
+                    const nuevoEstudiante = {
+                        numeroLista,
+                        apellidoPaterno: document.getElementById('apellidoPaterno').value.trim(),
+                        apellidoMaterno: document.getElementById('apellidoMaterno').value.trim(),
+                        nombre: document.getElementById('nombre').value.trim(),
+                        participaciones: 0
+                    };
+
+                    try {
+                        // El numeroLista será usado como ID del documento en Firestore
+                        await docRef.set(nuevoEstudiante); 
+                        estudianteForm.reset();
+                    } catch (error) {
+                        console.error("Error al agregar documento:", error);
+                        alert("Hubo un error al agregar el estudiante.");
+                    }
+                });
             });
             
-            function modificarParticipacion(cantidad) {
+            // Modificación de Participación (Input principal)
+            async function modificarParticipacion(cantidad) {
                 const inputEl = document.getElementById('numeroListaParticipacion');
                 if (!inputEl.value) { alert('Por favor, introduce un número de lista.'); return; }
-                const numeroLista = parseInt(inputEl.value);
-                const estudiante = estudiantes.find(est => est.numeroLista === numeroLista);
-                if (estudiante) {
-                    estudiante.participaciones = Math.max(0, estudiante.participaciones + cantidad);
-                    guardarYActualizar();
-                    inputEl.value = '';
-                    const nombreCompleto = `${estudiante.nombre} ${estudiante.apellidoPaterno}`;
-                    const accion = cantidad > 0 ? 'agregada para' : 'restada a';
-                    alert(`Participación ${accion} ${nombreCompleto}. Total: ${estudiante.participaciones}`);
-                } else {
-                    alert('No se encontró un estudiante con ese número de lista.');
+                const numeroLista = String(parseInt(inputEl.value));
+                
+                try {
+                    const docRef = classCollection.doc(numeroLista);
+                    const doc = await docRef.get();
+
+                    if (doc.exists) {
+                        const currentCount = doc.data().participaciones;
+                        const newCount = Math.max(0, currentCount + cantidad);
+
+                        await docRef.update({ participaciones: newCount });
+                        inputEl.value = '';
+                        
+                        const est = estudiantes.find(e => e.id === numeroLista); 
+                        const nombreCompleto = est ? `${est.nombre} ${est.apellidoPaterno}` : 'Estudiante';
+                        const accion = cantidad > 0 ? 'agregada para' : 'restada a';
+                        alert(`Participación ${accion} ${nombreCompleto}. Total: ${newCount}`);
+                    } else {
+                        alert('No se encontró un estudiante con ese número de lista.');
+                    }
+                } catch (error) {
+                    console.error("Error al modificar participación:", error);
+                    alert("Hubo un error al modificar la participación.");
                 }
             }
 
-            function agregarParticipacionDirecto(numeroLista) {
-                const est = estudiantes.find(e => e.numeroLista === numeroLista);
-                if (est) { est.participaciones++; guardarYActualizar(); }
-            }
-            
-            function restarParticipacionDirecto(numeroLista) {
-                const est = estudiantes.find(e => e.numeroLista === numeroLista);
-                if (est) { est.participaciones = Math.max(0, est.participaciones - 1); guardarYActualizar(); }
-            }
-
-            function eliminarEstudiante(numeroLista) {
-                if (confirm('¿Estás seguro de que deseas eliminar a este estudiante?')) {
-                    estudiantes = estudiantes.filter(est => est.numeroLista !== numeroLista);
-                    guardarYActualizar();
-                }
-            }
-
-            function guardarYActualizar() {
-                localStorage.setItem(storageKey, JSON.stringify(estudiantes));
-                actualizarTabla();
-            }
-            
-            function actualizarTabla() {
-                // Se comprueba si cuerpoTabla existe antes de usarlo
-                if (cuerpoTabla) { 
-                    cuerpoTabla.innerHTML = '';
-                    mensajeVacio.style.display = estudiantes.length === 0 ? 'block' : 'none';
-                    
-                    const estudiantesOrdenados = [...estudiantes].sort((a, b) => a.numeroLista - b.numeroLista);
-                    
-                    estudiantesOrdenados.forEach(est => {
-                        const nombreCompleto = `${est.apellidoPaterno} ${est.apellidoMaterno} ${est.nombre}`;
-                        cuerpoTabla.innerHTML += `
-                            <tr>
-                                <td>${est.numeroLista}</td>
-                                <td>${nombreCompleto}</td>
-                                <td><span class="participacion-count">${est.participaciones}</span></td>
-                                <td class="actions">
-                                    <button class="btn btn-small btn-success" onclick="agregarParticipacionDirecto(${est.numeroLista})">+1</button>
-                                    <button class="btn btn-small btn-warning" onclick="restarParticipacionDirecto(${est.numeroLista})">-1</button>
-                                    <button class="btn btn-small btn-danger" onclick="eliminarEstudiante(${est.numeroLista})">Eliminar</button>
-                                </td>
-                            </tr>
-                        `;
+            // Modificación de Participación Directa (Botones de la tabla)
+            async function agregarParticipacionDirecto(numeroLista) {
+                const docRef = classCollection.doc(String(numeroLista));
+                try {
+                    await docRef.update({
+                        participaciones: firebase.firestore.FieldValue.increment(1)
                     });
+                } catch (error) {
+                    console.error("Error al agregar participación directa:", error);
                 }
+            }
+            
+            async function restarParticipacionDirecto(numeroLista) {
+                const docRef = classCollection.doc(String(numeroLista));
+                try {
+                    const doc = await docRef.get();
+                    if (doc.exists && doc.data().participaciones > 0) {
+                        await docRef.update({
+                            participaciones: firebase.firestore.FieldValue.increment(-1)
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error al restar participación directa:", error);
+                }
+            }
+
+            // Eliminar Estudiante
+            async function eliminarEstudiante(numeroLista) {
+                if (confirm('¿Estás seguro de que deseas eliminar a este estudiante?')) {
+                    try {
+                        await classCollection.doc(String(numeroLista)).delete();
+                    } catch (error) {
+                        console.error("Error al eliminar estudiante:", error);
+                        alert("Hubo un error al eliminar el estudiante.");
+                    }
+                }
+            }
+            
+            // Dibuja la tabla con los datos que ya están en la variable 'estudiantes'
+            function actualizarTabla() {
+                cuerpoTabla.innerHTML = '';
+                mensajeVacio.style.display = estudiantes.length === 0 ? 'block' : 'none';
+                
+                const estudiantesOrdenados = [...estudiantes].sort((a, b) => a.numeroLista - b.numeroLista);
+                
+                estudiantesOrdenados.forEach(est => {
+                    const nombreCompleto = `${est.apellidoPaterno} ${est.apellidoMaterno} ${est.nombre}`;
+                    cuerpoTabla.innerHTML += `
+                        <tr>
+                            <td>${est.numeroLista}</td>
+                            <td>${nombreCompleto}</td>
+                            <td><span class="participacion-count">${est.participaciones}</span></td>
+                            <td class="actions">
+                                <button class="btn btn-small btn-success" onclick="agregarParticipacionDirecto(${est.numeroLista})">+1</button>
+                                <button class="btn btn-small btn-warning" onclick="restarParticipacionDirecto(${est.numeroLista})">-1</button>
+                                <button class="btn btn-small btn-danger" onclick="eliminarEstudiante(${est.numeroLista})">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
             }
         </script>
     </div> 
