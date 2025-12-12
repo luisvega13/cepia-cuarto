@@ -36,20 +36,20 @@ function showTab(tabName) {
     document.getElementById('nav-' + tabName).classList.add('active');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const loginContainer = document.getElementById('login-container');
-    const contentContainer = document.getElementById('content');
-    const navbar = document.getElementById('navbar');
+// document.addEventListener('DOMContentLoaded', () => {
+//     const loginContainer = document.getElementById('login-container');
+//     const contentContainer = document.getElementById('content');
+//     const navbar = document.getElementById('navbar');
 
-    if (loginContainer && contentContainer && navbar) {
-        loginContainer.style.display = 'none';
+//     if (loginContainer && contentContainer && navbar) {
+//         loginContainer.style.display = 'none';
 
-        contentContainer.style.display = 'block';
+//         contentContainer.style.display = 'block';
 
-        navbar.style.display = 'flex';
+//         navbar.style.display = 'flex';
 
-        if (typeof showTab === 'function') {
-            showTab('material');
-        }
-    }
-});
+//         if (typeof showTab === 'function') {
+//             showTab('material');
+//         }
+//     }
+// });
