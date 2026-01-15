@@ -199,3 +199,31 @@ a{
     background-color: #7CA28D;
     border-radius: 15px;
 }
+/* Estudiantes */
+.tabla-estudiantes {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.tabla-estudiantes th {
+    background-color: #4CAF50;
+    color: white;
+    text-align: left;
+    padding: 12px;
+}
+.tabla-estudiantes td {
+    border-bottom: 1px solid #ddd;
+    padding: 10px;
+}
+.tabla-estudiantes tr:hover {
+    background-color: #f5f5f5;
+}
+.user-tag {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-weight: bold;
+}
