@@ -207,7 +207,7 @@ a{
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 .tabla-estudiantes th {
-    background-color: #4CAF50;
+    background-color: var(--color-primario);
     color: white;
     text-align: left;
     padding: 12px;
@@ -221,7 +221,7 @@ a{
 }
 .user-tag {
     background-color: #e8f5e9;
-    color: #2e7d32;
+    color: var(--color-primario-oscuro);
     padding: 4px 8px;
     border-radius: 4px;
     font-family: monospace;
